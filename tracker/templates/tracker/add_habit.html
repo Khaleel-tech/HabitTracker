@@ -1,0 +1,12 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<section class="card">
+    <h2>Add a New Habit</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Habit</button>
+    </form>
+</section>
+{% endblock %}

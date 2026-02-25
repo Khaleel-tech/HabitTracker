@@ -1,0 +1,80 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<section class="card">
+    <h2>Last 7 Days Overview</h2>
+    {% if habit_summaries %}
+    <table>
+        <thead>
+            <tr>
+                <th>Habit</th>
+                <th>Total Minutes</th>
+                <th>Average Minutes</th>
+                <th>Done Days</th>
+                <th>Current Streak</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for summary in habit_summaries %}
+            <tr>
+                <td>{{ summary.habit.name }}</td>
+                <td>{{ summary.total_minutes }}</td>
+                <td>{{ summary.average_minutes }}</td>
+                <td>{{ summary.done_days }}</td>
+                <td>{{ summary.streak }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No habits yet. Add one to get started.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Minutes by Habit (Last 7 Days)</h2>
+    <canvas id="habitChart" height="120"></canvas>
+</section>
+
+{{ chart_labels_json|json_script:"chart-labels" }}
+{{ chart_data_json|json_script:"chart-data" }}
+
+<script>
+    const labels = JSON.parse(document.getElementById('chart-labels').textContent);
+    const dataSets = JSON.parse(document.getElementById('chart-data').textContent);
+
+    const chartConfig = {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: dataSets.map((item, idx) => ({
+                label: item.label,
+                data: item.data,
+                tension: 0.3,
+                fill: false,
+                borderWidth: 2,
+            })),
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Minutes',
+                    },
+                },
+            },
+        },
+    };
+
+    const chartCtx = document.getElementById('habitChart');
+    new Chart(chartCtx, chartConfig);
+</script>
+{% endblock %}
